@@ -1,0 +1,31 @@
+/* This is the stylesheet for my responsive index */
+@charset "utf-8";
+
+@media screen
+	and (min-width:1201px) {
+		.software {width:450px; height:580px; background:url(software.png) 0 0px;}
+	}
+
+@media screen
+	and (min-width:1001px) 
+	and (max-width:1200px) {
+	.software {width:410px; height:580px; background:url(software.png) -450px 0;}
+	}
+
+@media screen
+	and (min-width:801px) 
+	and (max-width:1000px) {
+	.software {width:345px; height:580px; background:url(software.png) -860px 0;}
+	}
+
+@media screen
+	and (min-width:601px) 
+	and (max-width:800px) {
+	.software {width:710px; height:625px; background:url(software.png) 0 -590px;}
+	}
+
+@media screen
+	and (min-width: 0px)
+	and (max-width:600px) {
+	.software {width:485px; height:625px; background:url(software.png) -720px -590px;}
+	}
