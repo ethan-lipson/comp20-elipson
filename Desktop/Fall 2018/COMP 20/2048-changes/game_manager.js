@@ -89,12 +89,11 @@ GameManager.prototype.actuate = function () {
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     request.onreadystatechange = function() {
       if(request.readyState == 4 && request.status == 200) {
-        var topten = "filler code right now";
-        console.log(topten);
+        var topten = "The top ten scores should be in this place";
+        alert(topten);
       }
     }
     var data = 'username='+username+'&score='+this.score+'&grid='+JSON.stringify(this.grid);
-    console.log(data);
     request.send(data);
     this.storageManager.clearGameState();
   } else {

@@ -76,11 +76,11 @@ app.get('/', function(request, response) {
 });
 
 app.get('/scores.json', function(request, response) {
-  response.set('Content-Type', 'text/html');
+  response.set('Content-Type', 'application/json');
   var user_query = request.query.username;
-  var indexPage = '';
-  if (user_query == ' ')
-    response.send();
+  if ((user_query == ' ')||(user_query == null)){
+    response.send([]);
+  }
 
   // Line 50: equivalent to `db.fooditems` in MongoDB client shell
   db.collection('scores', function(er, collection) {
@@ -91,12 +91,7 @@ app.get('/scores.json', function(request, response) {
       // All results of db.fooditems.find() will go into...
       // ...`results`.  `results` will be an array (or list)
       if (!err) {
-        indexPage += '<!DOCTYPE HTML><html><head><title>2048 Scores</title></head><body><table><tr><th><h3>User</h3></th><th><h3>Score</h3></th><th><h3>Timestamp</h3></th></tr>';
-        for (var count = 0; count < results.length; count++) {
-            indexPage += '<tr><th><p>'+results[count].username+'</p></th><th><p>'+results[count].score+'</p></th><th><p>'+results[count].created_at+'</p></th></tr>';
-        }
-        indexPage += '</body></html>';
-        response.send(indexPage);
+        response.send(results);
       } else {
         response.send([]);
       }
