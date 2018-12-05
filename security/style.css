@@ -1,0 +1,84 @@
+/* This is the stylesheet for my assignment 3 index */
+@charset "utf-8";
+
+body{
+	text-align: center;
+	background-color: #A9A9A9;
+	border-style: solid;
+	border-color: black;
+}
+
+ul{
+	list-style: none;
+	padding: 10px;
+}
+
+li{
+	border-style: solid;
+	border-color: black;
+}
+
+#boardpic img{
+	width: 200px;
+	height: 300px;
+}
+
+#SQLpic img{
+	width: 350px;
+	height: 230px;
+}
+
+#alertpic img{
+	width: 650px;
+	height: 400px;
+}
+
+#alertcompic img{
+	width: 800px;
+	height: 100px;
+}
+
+#XSSinsertpic img{
+	width: 650px;
+	height: 400px;
+}
+
+#XSSresultpic img{
+	width: 650px;
+	height: 400px;
+}
+
+#neinjectpic img{
+	width: 650px;
+	height: 400px;
+}
+
+#nequerypic img{
+	width: 800px;
+	height: 100px;
+}
+
+#redirectpic img{
+	width: 800px;
+	height: 100px;
+}
+
+#redirect2pic img{
+	width: 800px;
+	height: 100px;
+}
+
+#nprpic img{
+	width: 650px;
+	height: 400px;
+}
+
+#shellpic img{
+	width: 650px;
+	height: 400px;
+}
+
+#hackermeme img{
+	width: 550px;
+	height: 400px;
+}
