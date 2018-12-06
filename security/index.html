@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+  <title>Assignment 4</title>
+  <link rel="stylesheet" href="style.css"/>
+  <meta charset="utf-8" />
+  <script src="jquery-3.3.1.min.js"></script>
+  <script>
+		$(document).ready(function(){
+			$("div#fault li").hide();
+			$("div#fault h1").click(function() {
+				$("div#fault li").slideToggle('slow');
+			});
+		});
+	</script>
+</head>
+
+<body>
+	<h1>Ethan Lipson Assignment 4</h1>
+	<h1>Introduction</h1>
+		<p>I was hired to find vulnerabilities in a webpage and server built to report High Scores from the game 2048. The app is constructed to take in data and store the information in Username, Score and respective ending grid slots. The goal of this project is to locate areas where hackers could infiltrate the site to add toxic data. I have found multiple areas to be strengthened.</p>
+		<div id ="boardpic"><img src="2048board.png"></div>
+	<h1>Methodology</h1>
+		<div id ="XSSpic"><img src="xssimage.jpg"></div>
+		<p> To begin testing, I started with the simplest path, Cross Site Scripting (XSS). Cross Site Scripting is when instead of a hacker inputing a proper username in the program, the hacker inputs a line of javascript code. The server then executes the code instead of reading a string as originally intended. This is incredibly dangerous because it allows anyone to execute code on a website that is not their own. To check for this vulnerability, I played the game until the game ended. when the input box appeared, I entered a simple line of javascript. Sure enough the program ran the code.</p>
+		<div id ="SQLpic"><img src="SQLimage.jpg"></div>
+		<p>The second method I tried to use in order to insert unwanted data was through curl injections. In this method I passed similar javascript code. However, this method is different because in stead of having another site pass the database bad information, I inserted the bad data directly into the database. This also accepted the fake username and ran the code.</p>
+		<p>The next place I searched for vulnerabilities was in the scores.json path. This path provides the data for a given username as asked for from a query string. This means the url includes the key to be searched for in the database. I tried to pull up the entire database. I succedded.</p>
+		<p>The next two vulnerabilities I tried to flush out, I was unsuccessful. Not because the vulnerabilities do not exist but because my own coding ability held me back from properly implementing the attacks.</p>
+		<p>Looking at the code for the server, I found the code which declares the database. I realized the actually database could be tempered with. I tried to clear all of the data from the database. My script did not successfully delete the database, yet the server code idicates that a hacker could run databse commands via XSS or curl commands.</p>
+		<p>The second vulnerability that I could not get to work but is there nonetheless, is an information overload. This can be done via spamming the database with too much information. I tried to implement this tactic after looking at the database information. I could not properly write a script shell to repeatedly fill the database with garbage. This vulnerability was found via looking at the code and how the database operates.</p>
+	<h1>Abstract of Findings</h1>
+		<p>The program, while highly functional if used correctly, had major vulnerabilities that allowed for easy and frequent attacks. This was massively frustrating because it meant that often it was hard to test a vulnerability because another hacker's attack was taking priority.</p>
+		<p>To get around this I had to figure out through looking at the code how to force my data into the priority slot. This meant searching the for how the source code sorts and sends the data from the database. In this case it was done via size of score size: highest first. So I found the redirect data member and inserted my own code at a higher score.</p>
+		<p>The program is vulnerable to XSS and SQL injections as well as HTML insertions and database manipulation/spamming.</p>
+		<p>The simplest way to attack is via curl data injections. This is because control access is given to all (response.header("Access-Control-Allow-Origin", "*");). If the access were restricted to only certain sources then any page/source would not be able to send the webapp and database information(attacks). Removal of this access would tighten most holes up.</p>
+		<p>The XSS flaws are easily solved via stripping of special characters.</p>
+
+	<div id="fault">
+		<h1>Issues Found (click on)</h1>
+		<ul>
+			<li>
+				<h2>Flaw 1</h2>
+				<h3>curl injection</h3> 
+				<div id ="alertpic"><img src="alert.png"></div>
+				<p>Alert window.</p>
+				<p>Located in /submit POST method</p>
+				<p>Medium Severity: an annoyance with sinister implications. This particular injection is harmless. However, it shows a vulnerability that is possibly very dangerous.</p>
+				<p>This code was my first successful attack. This is how I figured out that the score had to be higher than the redirect attack's score. because I needed to be able to control the score, I used curl rather than the game where the score is not user input. This was also tricky because the server weeds out bad data. In order to properly insert, I had to give a possible grid as well. The command looked like the following:</p>
+				<div id ="alertcompic"><img src="alertcode.png"></div>
+				<p>In this code I also wrote a line to change the title of the page which did not run. This was later properly infilitrated.</p>
+				<p>Resolution: restrict access and strip special characters.</p>
+			</li>
+			<li>
+				<h2>Flaw 2</h2>
+				<h3>XSS</h3> 
+				<div id ="XSSinsertpic"><img src="XSSinsert.png"></div>
+				<p> Title change.</p>
+				<p>Located in client side sending of data to server</p>
+				<p>High Severity: This has the capability of letting anyone use the webapp as a tool to steal info or plant viruses.</p>
+				<p>This code was a successful XSS because the database had been cleared and the score could be as low as what the game could create. This code also worked in a way that the previous title change attempt did not because of the use of single apostrophes rather than double ( ' ' / " " ).</p>
+				<div id ="XSSresultpic"><img src="XSSresult.png"></div>
+				<p> This XSS has a more dangerous tone than the above script. While it is unpleasant to get a pop-up window. This code retrieves the document via Document Object Model and alters the source code. This makes the code very vulnerable. If desired the hacker could completely rewrite the webpage by stealing the DOM tree and reinserting new code.</p>
+				<p>Resolution: the same as flaw one. Restrict access and strip special characters.</p>
+			</li>
+			<li>
+				<h2>Flaw 3</h2>
+				<h3>Injection</h3> 
+				<div id ="neinjectpic"><img src="neinject.png"></div>
+				<p> Get Entire Database.</p>
+				<p>Located in /scores.json GET method</p>
+				<p>Medium Severity: This is very dangerous if the database has private information such as credit card information or other credential info (i.e. passwords, IDs).</p>
+				<p> This attack is definitely harder to stop. However, it is the easiest to implement. This was done via a single corrupt querystring. The "not equals" quality tells the server to find all of the documents in the database instead of only ones with a certain username (as originally designed). The url and querystring run was as follows:</p>
+				<div id ="nequerypic"><img src="nequerystring.png"></div>
+				<p>This type of infiltration is easily avoided by not having a route that provided straight access to a database. However if that type of search and return function is desired than this could also be prevented by checking if the data being returned have different usernames. Also by never returning specific data.</p>
+				<p>Resolution: restricted return of data and checking to make sure that the info is actually all share the value of the query.</p>
+			</li>
+			<li>
+				<h2>Flaw 4</h2>
+				<h3>curl injection</h3> 
+				<div id ="nprpic"><img src="nprredirect.png"></div>
+				<p> Injected Webpage Redirect.</p>
+				<p> Located in /submit POST methed</p>
+				<p> High Severity: This easy webpage redirect allows for a hacker to immediately send the page to a toxic webpage. This can be used to download malware onto a device or to send the user to a page with innappropriate content.</p>
+				<p>The content was redirected through a simple line of javascript. The curl command is below.</p>
+				<div id ="redirectpic"><img src="redirectcommand.png"></div>
+				<p>The proof of this redirect can be found when the script is queried in the /scores.json path. The proof is below.</p>
+				<div id ="redirect2pic"><img src="redirectproof.png"></div>
+				<p> This code could have easily been executed via XSS, I only did this via curl because at this point there was another redirect. In order to beat the first redirect I had to input my score manually.</p>
+				<p>In this particular implementation the redirect is an immediate issue. However, in another use of data, the program could store the toxic redirect and spring it upon a client in an unsuspecting moment. The danger of a lurking script is high.</p>
+				<p>Resolution: just like other XSS, stripping special characters will remove the ability of the code to run and will yeild a harmless string. Similarly a character limit will stop a large script.</p>
+				
+			</li>
+			<li>
+				<h2>Flaw 5</h2>
+				<h3>Injection Overload</h3> 
+				<div id ="shellpic"><img src="shellscript.png"></div>
+				<p>Overloading the Server</p>
+				<p> This is admittedly not my hack. I could not get my shell to work properly. However this code is relevant because I could not work on breaking it because someone else successfully overloaded the database showing that the vulnerability did exist.</p>
+				<p> Located in /submit POST method</p>
+				<p>Medium Severity: This is a nuisance because it stops the webapp from working. However, unless the overloaded content is also dangerous, it does not jeapordize any data or allow for the hacker to steal information.</p>
+				<p> One can tell that it is a shell script because the injections are identitcal and sent within miliseconds of each other.</p>
+				<p> This is potentially dangerous if used on polling software or other important forms because it could prevent people from using those forms. </p>
+				<p> Resolution: This can be stopped by writing in limits of how many POST requests can be made in a span of time. As well as software to detect automated input (Robot Checks, you know the ones).</p>
+			</li>
+		</ul>
+	</div>
+	<h1>Conclusion</h1>
+	<p>This webapp has inherent flaws because of the /scores.json path. A path that returns data blindly and without any authorization is unsafe. Without that path, however, there are easy fixes to most other vulnerabilities. Because this app only needs the input to be a username, a character limit is not that great of an impedance. Were the app to take comments, a charachter limit would not work. In that case, the character stripping is a more preferred method of solving the corrupt data problem. Once more the stripping characters causes problems for a site like stackoverflow where a comment box needs to be able to take code without stripping characters (otherwise the advice would not make sense). If both character stripping and character limits are undesired, then a third solution would be a validator and stringify function. This would first check to make sure the input was safe and/or turn the input into a harmless string so that it could not run. These are not perfect solutions however, any of them would neutralize most of the scripting attacks. The developer just has to decide which cost means the least to them. This project has made it very cear that on top of security to prevent attacks coming in, the app or developers should actively scour the database for toxic data to make sure that harmful attacks do not persist or live within the app. Otherwise, the developer will be a carrier of any webdisease a hacker wants to add. To keep with the health metaphor, web apps should be immunized, routinely checked up on, and treated when ill. </p>
+	<div id ="hackermeme"><img src="hacker.jpg"></div>
+</body>
+</html>
